@@ -37,19 +37,27 @@ class Brick(pygame.sprite.Sprite):
         pass
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = loadImage('ball.png')
-        self.rect.x = 285
-        self.rect.y = 300
-        self.speed = 3
-        self.angle = 0
+	def __init__(self):
+		pygame.sprite.Sprite.__init__(self)
+		self.image, self.rect = loadImage('ball.png')
+		self.rect.x = 285
+		self.rect.y = 300
+		self.dx = 5
+		self.dy = 5
 
-    def move(self):
-        self.rect.y += self.speed
+	def move(self):
+		self.rect.y += self.dy
+		self.rect.x += self.dx
 
-    def update(self):
-        self.move()
+	def wallBounce(self):
+		if self.rect.right >= WIDTH:
+			self.dx *= -1
+		if self.rect.left <= 0:
+			self.dx *= -1
+
+	def update(self):
+		self.move()
+		self.wallBounce()
 
 def getEvents():
     for event in pygame.event.get():
@@ -73,7 +81,7 @@ def draw():
 
 def setupBricks():
     rowAmount = 7
-    colAmount = 5
+    colAmount = 7
     rowGap = 80
     colGap = 25
     xStart = 20
@@ -91,9 +99,9 @@ def setupBricks():
 
 def collisionCheck():
     if pygame.sprite.groupcollide(paddleSprites, ballSprites, 0, 0):
-        ball.speed *= -1
+        ball.dy *= -1
     if pygame.sprite.groupcollide(brickSprites, ballSprites, 1, 0):
-        ball.speed *= -1
+        ball.dy *= -1
 
 def loadImage(name, colorkey=None):
     fullname = os.path.join('graphics', name)
@@ -110,17 +118,17 @@ def loadImage(name, colorkey=None):
     return image, image.get_rect()
 
 if __name__ == "__main__":
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    screen.fill(BACKGROUND)
-    paddle = Paddle()
-    paddleSprites = pygame.sprite.RenderPlain((paddle))
-    ball = Ball()
-    ballSprites = pygame.sprite.RenderPlain((ball))
-    brickSprites = setupBricks()
-    clock = pygame.time.Clock()
-    while True:
-        clock.tick(FRAMERATE)
-        getEvents()
-        draw()
-        collisionCheck()
+	pygame.init()
+	screen = pygame.display.set_mode((WIDTH, HEIGHT))
+	screen.fill(BACKGROUND)
+	paddle = Paddle()
+	ball = Ball()
+	paddleSprites = pygame.sprite.RenderPlain((paddle))
+	ballSprites = pygame.sprite.RenderPlain((ball))
+	brickSprites = setupBricks()
+	clock = pygame.time.Clock()
+	while True:
+		clock.tick(FRAMERATE)
+		getEvents()
+		draw()
+		collisionCheck()
